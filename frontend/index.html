@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RingTrace — Evidence-Grounded Financial Crime Investigation</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="logo-mark">RT</div>
+            <div>
+                <h1 class="brand-title">RingTrace</h1>
+                <p class="brand-tagline">Trace the flow. Challenge the hypothesis. Verify the evidence.</p>
+            </div>
+        </div>
+
+        <div class="nav-controls">
+            <div class="control-group">
+                <label for="caseSelect">Case Scenario</label>
+                <select id="caseSelect" onchange="loadSelectedCase()">
+                    <option value="RT-1042">RT-1042: Circular Mule Ring (Rapid Transit)</option>
+                    <option value="RT-2091">RT-2091: Corporate Payroll (False Positive)</option>
+                    <option value="RT-3015">RT-3015: Smurfing Fan-In Aggregation</option>
+                    <option value="RT-4088">RT-4088: Planted-Defect Benchmark (Data Faults)</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" id="btnInvestigate" onclick="runInvestigation()">
+                <span class="btn-icon">⚡</span> Run Adversarial Investigation
+            </button>
+
+            <button class="btn btn-secondary" onclick="openBenchmarkModal()">
+                <span class="btn-icon">📊</span> Baseline Benchmark
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="workspace-grid">
+        <!-- LEFT COLUMN: Graph & Evidence Inspection -->
+        <section class="panel-column left-pane">
+            <!-- Case Banner -->
+            <div class="card case-summary-card">
+                <div class="case-header-row">
+                    <div>
+                        <span class="badge badge-case" id="caseIdBadge">CASE: RT-1042</span>
+                        <h2 class="case-title" id="caseTitleDisplay">Circular Mule Ring (Rapid Pass-Through)</h2>
+                        <p class="case-desc" id="caseDescDisplay">5-account layering cycle with high transit velocity and a pivotal bridge transaction.</p>
+                    </div>
+                    <div class="workflow-status-box">
+                        <span class="subtext">Suggested Workflow State</span>
+                        <div class="status-pill status-pill-pending" id="workflowStatusPill">AWAITING RUN</div>
+                    </div>
+                </div>
+
+                <div class="case-stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Volume</span>
+                        <span class="stat-value" id="statVolume">₹ 2,340,000</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Transactions</span>
+                        <span class="stat-value" id="statTxCount">5 Records</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Involved Accounts</span>
+                        <span class="stat-value" id="statAccCount">5 Accounts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Data Provenance</span>
+                        <span class="stat-value text-accent" id="statProvenance">Frozen SHA-256</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Graph Viewport -->
+            <div class="card graph-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-icon">🕸️</span>
+                        <h3>Temporal Transaction Network</h3>
+                        <span class="badge badge-info" id="graphModeBadge">Time-Ordered Causal Flow</span>
+                    </div>
+                    <div class="graph-legend">
+                        <span class="legend-dot origin"></span> Origin
+                        <span class="legend-dot intermediary"></span> Intermediary
+                        <span class="legend-dot pivotal"></span> Pivotal Bridge
+                    </div>
+                </div>
+                
+                <div class="graph-container" id="graphContainer">
+                    <svg id="transactionGraphSvg" width="100%" height="340"></svg>
+                </div>
+
+                <!-- Interactive Sensitivity Sandbox -->
+                <div class="sensitivity-sandbox">
+                    <div class="sandbox-header">
+                        <h4>🔬 Interactive Sensitivity Diagnostic</h4>
+                        <span class="subtext">Simulate exclusion of a transaction to test narrative fragility</span>
+                    </div>
+                    <div class="sandbox-controls">
+                        <select id="perturbSelect">
+                            <option value="">Select transaction to exclude...</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline" onclick="simulatePerturbation()">Test Fragility</button>
+                        <button class="btn btn-sm btn-subtle" onclick="resetPerturbation()">Reset</button>
+                    </div>
+                    <div class="perturb-result-box" id="perturbResultBox" style="display: none;">
+                        <span id="perturbSummaryText">Simulated exclusion...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Records Ledger -->
+            <div class="card ledger-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-icon">📋</span>
+                        <h3>Case Transaction Ledger</h3>
+                        <span class="badge badge-muted" id="ledgerCountBadge">5 Records</span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="transactionTable">
+                        <thead>
+                            <tr>
+                                <th>Tx ID</th>
+                                <th>Timestamp</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Amount</th>
+                                <th>Memo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody">
+                            <!-- Injected by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: CERP, Adversarial Trace & Review -->
+        <section class="panel-column right-pane">
+            <!-- Case Evidence Robustness Profile (CERP) -->
+            <div class="card cerp-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-icon">🛡️</span>
+                        <h3>Case Evidence Robustness Profile (CERP)</h3>
+                    </div>
+                    <span class="badge badge-notice">Post-Alert Quality Layer</span>
+                </div>
+
+                <div class="cerp-grid">
+                    <div class="cerp-metric-card" id="cardProv">
+                        <div class="cerp-metric-header">
+                            <span class="dim-title">Provenance Integrity</span>
+                            <span class="dim-badge badge-neutral" id="badgeProv">UNTESTED</span>
+                        </div>
+                        <p class="dim-desc" id="descProv">Record IDs, amounts, and source hashes verified against frozen ledger.</p>
+                    </div>
+
+                    <div class="cerp-metric-card" id="cardChrono">
+                        <div class="cerp-metric-header">
+                            <span class="dim-title">Chronology & Causality</span>
+                            <span class="dim-badge badge-neutral" id="badgeChrono">UNTESTED</span>
+                        </div>
+                        <p class="dim-desc" id="descChrono">Time order t_i ≤ t_{i+1} verified along all directed fund paths.</p>
+                    </div>
+
+                    <div class="cerp-metric-card" id="cardHypo">
+                        <div class="cerp-metric-header">
+                            <span class="dim-title">Alternative Hypotheses</span>
+                            <span class="dim-badge badge-neutral" id="badgeHypo">UNTESTED</span>
+                        </div>
+                        <p class="dim-desc" id="descHypo">Defender read-only tools test recurring payments & commercial memos.</p>
+                    </div>
+
+                    <div class="cerp-metric-card" id="cardGaps">
+                        <div class="cerp-metric-header">
+                            <span class="dim-title">Contradictions & Gaps</span>
+                            <span class="dim-badge badge-neutral" id="badgeGaps">UNTESTED</span>
+                        </div>
+                        <p class="dim-desc" id="descGaps">Contradictory evidence surfaced; uncollected fields kept as UNKNOWN.</p>
+                    </div>
+
+                    <div class="cerp-metric-card full-width" id="cardSens">
+                        <div class="cerp-metric-header">
+                            <span class="dim-title">Pivotal-Evidence Sensitivity</span>
+                            <span class="dim-badge badge-neutral" id="badgeSens">UNTESTED</span>
+                        </div>
+                        <p class="dim-desc" id="descSens">Exclusion test identifies if conclusion relies heavily on a single bridge transaction.</p>
+                    </div>
+                </div>
+
+                <!-- Missing Context Notice -->
+                <div class="unknowns-callout">
+                    <span class="callout-icon">❓</span>
+                    <div>
+                        <strong>Declared Contextual Unknowns:</strong>
+                        <span id="unknownsListText">Run investigation to catalog unverified contextual fields.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adversarial Investigation Trace -->
+            <div class="card trace-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-icon">⚔️</span>
+                        <h3>Adversarial Case Investigation Trace</h3>
+                    </div>
+                    <span class="subtext">Prosecutor vs. Defender (Bounded Single-Pass)</span>
+                </div>
+
+                <div class="adversarial-split">
+                    <!-- Prosecutor Pane -->
+                    <div class="agent-column prosecutor-pane">
+                        <div class="agent-header">
+                            <span class="agent-avatar pros">P</span>
+                            <div>
+                                <h4>Prosecutor Agent</h4>
+                                <span class="subtext">Suspicious Typology Hypothesis</span>
+                            </div>
+                        </div>
+                        <div class="claims-list" id="prosecutorClaimsList">
+                            <div class="empty-state">Awaiting investigation run...</div>
+                        </div>
+                    </div>
+
+                    <!-- Defender Pane -->
+                    <div class="agent-column defender-pane">
+                        <div class="agent-header">
+                            <span class="agent-avatar def">D</span>
+                            <div>
+                                <h4>Defender Agent</h4>
+                                <span class="subtext">Alternative Hypothesis (Read-Only Tools)</span>
+                            </div>
+                        </div>
+                        <div class="claims-list" id="defenderClaimsList">
+                            <div class="empty-state">Awaiting investigation run...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deterministic Rejection Log -->
+                <div class="rejections-container" id="rejectionsContainer" style="display: none;">
+                    <div class="rejection-header">
+                        <span class="text-danger">🛑 Deterministic Claim Rejections:</span>
+                    </div>
+                    <ul id="rejectionsList" class="rejections-list"></ul>
+                </div>
+            </div>
+
+            <!-- Human Analyst Decision Console -->
+            <div class="card review-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-icon">👤</span>
+                        <h3>Human Compliance Analyst Determination</h3>
+                    </div>
+                    <span class="badge badge-governance">Consequential Decision Layer</span>
+                </div>
+
+                <div class="review-body">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Analyst Name / ID</label>
+                            <input type="text" id="analystNameInput" value="Investigator Twilight-01" class="text-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Consequential Action</label>
+                            <select id="analystDecisionSelect" class="text-input">
+                                <option value="ESCALATED_TO_FIU">Escalate to FIU / File Suspicious Transaction Report</option>
+                                <option value="INFORMATION_REQUESTED">Request Clarification & KYC Invoices from Branch</option>
+                                <option value="CLOSED_FALSE_POSITIVE">Close Alert: Confirmed Legitimate Commercial Activity</option>
+                                <option value="ESCALATED_SENIOR_ANALYST">Refer to Senior Financial Crime Specialist</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Analyst Case Notes & Rationale</label>
+                        <textarea id="analystNotesInput" class="text-area" rows="2" placeholder="Record reason for escalation, closure, or documentation request..."></textarea>
+                    </div>
+
+                    <div class="review-actions-bar">
+                        <button class="btn btn-primary" onclick="submitHumanReview()">Submit Analyst Decision</button>
+                        <span class="subtext" id="reviewTimestampText">Status: Awaiting human action</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Benchmark Evaluation Modal -->
+    <div class="modal-backdrop" id="benchmarkModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h2>📊 Planted-Defect Benchmark & Comparative Evaluation</h2>
+                    <p class="subtext">Controlled 3-arm evaluation: Detector-Only vs. Single-Agent vs. RingTrace</p>
+                </div>
+                <button class="btn-close" onclick="closeBenchmarkModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Evaluation Metric</th>
+                            <th>Detector-Only Baseline</th>
+                            <th>Single-Agent Investigator</th>
+                            <th>RingTrace (Ours)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="benchmarkTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center">Loading benchmark data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="benchmark-insights">
+                    <h4>Key Comparative Findings:</h4>
+                    <ul>
+                        <li><strong>Planted Defect Rejection:</strong> RingTrace's Deterministic Validator caught 100% of fabricated transaction IDs and impossible timestamps. Baseline LLMs accepted them uncritically.</li>
+                        <li><strong>Confirmation Bias Elimination:</strong> Dedicated Defender read-only tool calls surfaced commercial payroll pretexts on false-positive alerts, preventing wrongful escalation.</li>
+                        <li><strong>Fragility Transparency:</strong> RingTrace is the only system to disclose pivotal transaction dependencies via controlled perturbation tests.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
